@@ -66,24 +66,24 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
           
-    - name: Check if directory exists
-      id: check-dir
+    - name: Check if gradlew exists
+      id: check-gradlew
       run: |
-        if [ -d "functional-demo/backend-kotlin" ]; then
+        if [ -f "functional-demo/backend-kotlin/gradlew" ]; then
           echo "exists=true" >> $GITHUB_OUTPUT
         else
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
         
     - name: Build Functional Backend
-      if: steps.check-dir.outputs.exists == 'true'
+      if: steps.check-gradlew.outputs.exists == 'true'
       working-directory: ./functional-demo/backend-kotlin
       run: |
         chmod +x gradlew
         ./gradlew build
         
     - name: Run Tests
-      if: steps.check-dir.outputs.exists == 'true'
+      if: steps.check-gradlew.outputs.exists == 'true'
       working-directory: ./functional-demo/backend-kotlin
       run: ./gradlew test
 
