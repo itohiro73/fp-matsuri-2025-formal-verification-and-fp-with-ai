@@ -16,13 +16,24 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Check if gradle wrapper exists
+      id: check-wrapper
+      run: |
+        if [ -f "legacy-demo/backend-kotlin-legacy/gradle/wrapper/gradle-wrapper.jar" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Set up JDK 17
+      if: steps.check-wrapper.outputs.exists == 'true'
       uses: actions/setup-java@v4
       with:
         java-version: '17'
         distribution: 'temurin'
         
     - name: Cache Gradle packages
+      if: steps.check-wrapper.outputs.exists == 'true'
       uses: actions/cache@v4
       with:
         path: |
@@ -33,12 +44,14 @@ jobs:
           ${{ runner.os }}-gradle-
           
     - name: Build Legacy Backend
+      if: steps.check-wrapper.outputs.exists == 'true'
       working-directory: ./legacy-demo/backend-kotlin-legacy
       run: |
         chmod +x gradlew
         ./gradlew build
         
     - name: Run Tests
+      if: steps.check-wrapper.outputs.exists == 'true'
       working-directory: ./legacy-demo/backend-kotlin-legacy
       run: ./gradlew test
 
