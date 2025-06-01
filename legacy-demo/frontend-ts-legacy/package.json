@@ -1,0 +1,17 @@
+{
+  "name": "expense-app-legacy",
+  "version": "1.0.0",
+  "description": "Legacy expense application frontend (problematic example)",
+  "main": "src/index.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/index.js"
+  },
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "typescript": "^5.0.0",
+    "@types/node": "^20.0.0"
+  }
+}
