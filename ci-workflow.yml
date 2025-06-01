@@ -1,0 +1,177 @@
+name: CI Build
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  # Backend builds
+  legacy-backend:
+    name: Build Legacy Backend (Kotlin)
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'legacy-demo/backend-kotlin-legacy/') || github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Build Legacy Backend
+      working-directory: ./legacy-demo/backend-kotlin-legacy
+      run: |
+        chmod +x gradlew
+        ./gradlew build
+        
+    - name: Run Tests
+      working-directory: ./legacy-demo/backend-kotlin-legacy
+      run: ./gradlew test
+
+  functional-backend:
+    name: Build Functional Backend (Kotlin + Arrow)
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'functional-demo/backend-kotlin/') || github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Cache Gradle packages
+      uses: actions/cache@v4
+      with:
+        path: |
+          ~/.gradle/caches
+          ~/.gradle/wrapper
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+        restore-keys: |
+          ${{ runner.os }}-gradle-
+          
+    - name: Check if directory exists
+      id: check-dir
+      run: |
+        if [ -d "functional-demo/backend-kotlin" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Build Functional Backend
+      if: steps.check-dir.outputs.exists == 'true'
+      working-directory: ./functional-demo/backend-kotlin
+      run: |
+        chmod +x gradlew
+        ./gradlew build
+        
+    - name: Run Tests
+      if: steps.check-dir.outputs.exists == 'true'
+      working-directory: ./functional-demo/backend-kotlin
+      run: ./gradlew test
+
+  # Frontend builds
+  legacy-frontend:
+    name: Build Legacy Frontend (TypeScript)
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'legacy-demo/frontend-ts-legacy/') || github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Install dependencies
+      working-directory: ./legacy-demo/frontend-ts-legacy
+      run: npm install
+      
+    - name: Build
+      working-directory: ./legacy-demo/frontend-ts-legacy
+      run: npm run build
+
+  functional-frontend:
+    name: Build Functional Frontend (React + fp-ts)
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'functional-demo/frontend-react/') || github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        
+    - name: Check if directory exists
+      id: check-dir
+      run: |
+        if [ -d "functional-demo/frontend-react" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+        
+    - name: Install dependencies
+      if: steps.check-dir.outputs.exists == 'true'
+      working-directory: ./functional-demo/frontend-react
+      run: npm ci
+      
+    - name: Build
+      if: steps.check-dir.outputs.exists == 'true'
+      working-directory: ./functional-demo/frontend-react
+      run: npm run build
+      
+    - name: Type Check
+      if: steps.check-dir.outputs.exists == 'true'
+      working-directory: ./functional-demo/frontend-react
+      run: npm run type-check
+      
+    - name: Run Tests
+      if: steps.check-dir.outputs.exists == 'true'
+      working-directory: ./functional-demo/frontend-react
+      run: npm run test
+
+  # Formal verification (future phase)
+  formal-specs:
+    name: Validate Formal Specifications
+    runs-on: ubuntu-latest
+    if: contains(github.event.head_commit.modified, 'formal-specs/') || github.event_name == 'pull_request'
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    # TLA+ specification validation (when TLA+ specs exist)
+    - name: Check TLA+ specifications
+      working-directory: ./formal-specs
+      run: |
+        echo "TLA+ specification validation (placeholder)"
+        # Future: Add TLA+ validation tools
+        
+    # Alloy model checking (when Alloy models exist)  
+    - name: Check Alloy models
+      working-directory: ./formal-specs
+      run: |
+        echo "Alloy constraint validation (placeholder)"
+        # Future: Add Alloy validation tools
