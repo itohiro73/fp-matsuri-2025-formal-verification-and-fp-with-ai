@@ -237,4 +237,4 @@ class StateManager {
 export const stateManager = new StateManager();
 
 // Problem: Direct export of mutable state
-export { globalState };
+export { globalState, StateManager };

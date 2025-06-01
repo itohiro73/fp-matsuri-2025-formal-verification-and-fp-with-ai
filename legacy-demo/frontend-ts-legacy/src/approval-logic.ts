@@ -205,3 +205,5 @@ class ApprovalEngine {
 
 // Problem: Global singleton instance
 export const approvalEngine = new ApprovalEngine();
+
+export { ApprovalEngine };
