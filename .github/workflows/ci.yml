@@ -96,17 +96,31 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
+    - name: Check if package.json exists
+      id: check-package
+      working-directory: ./legacy-demo/frontend-ts-legacy
+      run: |
+        if [ -f "package.json" ]; then
+          echo "exists=true" >> $GITHUB_OUTPUT
+        else
+          echo "exists=false" >> $GITHUB_OUTPUT
+        fi
+    
     - name: Set up Node.js
+      if: steps.check-package.outputs.exists == 'true'
       uses: actions/setup-node@v4
       with:
         node-version: '18'
         cache: 'npm'
+        cache-dependency-path: './legacy-demo/frontend-ts-legacy/package-lock.json'
         
     - name: Install dependencies
+      if: steps.check-package.outputs.exists == 'true'
       working-directory: ./legacy-demo/frontend-ts-legacy
       run: npm install
       
     - name: Build
+      if: steps.check-package.outputs.exists == 'true'
       working-directory: ./legacy-demo/frontend-ts-legacy
       run: npm run build
 
@@ -117,39 +131,41 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
         
-    - name: Check if directory exists
-      id: check-dir
+    - name: Check if package.json exists
+      id: check-package
       run: |
-        if [ -d "functional-demo/frontend-react" ]; then
+        if [ -f "functional-demo/frontend-react/package.json" ]; then
           echo "exists=true" >> $GITHUB_OUTPUT
         else
           echo "exists=false" >> $GITHUB_OUTPUT
         fi
+    
+    - name: Set up Node.js
+      if: steps.check-package.outputs.exists == 'true'
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: './functional-demo/frontend-react/package-lock.json'
         
     - name: Install dependencies
-      if: steps.check-dir.outputs.exists == 'true'
+      if: steps.check-package.outputs.exists == 'true'
       working-directory: ./functional-demo/frontend-react
       run: npm ci
       
     - name: Build
-      if: steps.check-dir.outputs.exists == 'true'
+      if: steps.check-package.outputs.exists == 'true'
       working-directory: ./functional-demo/frontend-react
       run: npm run build
       
     - name: Type Check
-      if: steps.check-dir.outputs.exists == 'true'
+      if: steps.check-package.outputs.exists == 'true'
       working-directory: ./functional-demo/frontend-react
       run: npm run type-check
       
     - name: Run Tests
-      if: steps.check-dir.outputs.exists == 'true'
+      if: steps.check-package.outputs.exists == 'true'
       working-directory: ./functional-demo/frontend-react
       run: npm run test
 
