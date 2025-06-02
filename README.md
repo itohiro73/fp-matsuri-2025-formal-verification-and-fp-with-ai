@@ -173,22 +173,22 @@ Draft → Submitted → ManagerReview → [DirectorReview] → [FinanceReview] �
 **目標**: バグを含む従来仕様と、形式手法で厳密化した仕様の対比
 
 #### 1.1 問題のある従来仕様の作成
-- [ ] `docs/legacy-spec.md` - 曖昧で不完全な仕様書を作成
-- [ ] `legacy-demo/frontend-ts-legacy/` - 従来のTypeScript実装例（問題のあるパターン）
-- [ ] `legacy-demo/backend-kotlin-legacy/` - 従来のKotlin実装例（問題のあるパターン）
+- [x] `docs/legacy-spec.md` - 曖昧で不完全な仕様書を作成
+- [x] `legacy-demo/frontend-ts-legacy/` - 従来のTypeScript実装例（問題のあるパターン）
+- [x] `legacy-demo/backend-kotlin-legacy/` - 従来のKotlin実装例（問題のあるパターン）
 
 #### 1.2 TLA+による状態遷移仕様
-- [ ] `formal-specs/workflow.tla` - 経費申請ワークフローの状態遷移
+- [x] `formal-specs/workflow.tla` - 経費申請ワークフローの状態遷移
 - [ ] `formal-specs/verification-results/` - 状態遷移図の生成とモデル検査の実行
 - [ ] 不正な遷移パスの検出と修正
 
 #### 1.3 Alloyによる制約モデリング
-- [ ] `formal-specs/constraints.als` - 権限制約と金額ルールのモデル
+- [x] `formal-specs/constraints.als` - 権限制約と金額ルールのモデル
 - [ ] 制約違反パターンの自動検出
 - [ ] 反例の分析と仕様の改善
 
 #### 1.4 統合仕様書の作成
-- [ ] `docs/formal-specification.md` - TLA+/Alloyを統合した完全仕様
+- [x] `docs/formal-specification.md` - TLA+/Alloyを統合した完全仕様
 
 ### Phase 2: 関数型バックエンド実装
 **目標**: 型安全で副作用を排除した堅牢な実装
