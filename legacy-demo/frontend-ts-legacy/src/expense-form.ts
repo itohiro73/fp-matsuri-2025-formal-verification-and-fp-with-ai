@@ -140,4 +140,7 @@ function initializeExpenseForm() {
 }
 
 // Problem: Automatic execution on module load
-initializeExpenseForm();
+// Note: Commented out for build compatibility
+// initializeExpenseForm();
+
+export { ExpenseForm, initializeExpenseForm };
