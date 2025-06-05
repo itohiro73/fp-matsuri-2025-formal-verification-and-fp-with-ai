@@ -97,7 +97,7 @@ jobs:
         EOF
     
     - name: Upload verification results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: verification-results
@@ -136,7 +136,7 @@ jobs:
       run: docker-compose run --rm formal-verification make ci-verify
     
     - name: Upload Docker verification results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: docker-verification-results
