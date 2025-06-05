@@ -43,7 +43,7 @@ jobs:
     - name: Download Alloy
       run: |
         if [ ! -f ~/alloy.jar ]; then
-          wget https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.0.0/alloy.jar -O ~/alloy.jar
+          wget https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar -O ~/alloy.jar
         fi
     
     - name: Run TLA+ verification
