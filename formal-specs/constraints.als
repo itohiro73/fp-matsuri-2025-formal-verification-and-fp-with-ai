@@ -52,7 +52,7 @@ fact UserHierarchy {
     
     // Role hierarchy constraints
     all u: User | u.role = Manager implies some subordinate: User | subordinate.manager = u
-    all u: User | u.role = Director implies some manager: User | manager.manager = u and manager.role = Manager
+    all u: User | u.role = Director implies some m: User | m.manager = u and m.role = Manager
     all u: User | u.role = FinanceDirector implies u.role != Employee
 }
 
@@ -83,16 +83,16 @@ fact ApprovalConstraints {
 // ====================== APPROVAL RULES ======================
 
 // Define required approval path based on amount
-fun requiredApprovers[e: Expense]: seq User {
+fun requiredApprovers[e: Expense]: set User {
     e.amount <= 10000 implies 
         // Only direct manager needed
-        getDirectManager[e.applicant].manager
+        getDirectManager[e.applicant]
     else e.amount <= 50000 implies
-        // Manager then director
-        getDirectManager[e.applicant].manager -> getDirector[e.applicant]
+        // Manager and director
+        getDirectManager[e.applicant] + getDirector[e.applicant]
     else
-        // Manager, director, then finance director  
-        getDirectManager[e.applicant].manager -> getDirector[e.applicant] -> getFinanceDirector[]
+        // Manager, director, and finance director  
+        getDirectManager[e.applicant] + getDirector[e.applicant] + getFinanceDirector[]
 }
 
 fun getDirectManager[u: User]: one User {

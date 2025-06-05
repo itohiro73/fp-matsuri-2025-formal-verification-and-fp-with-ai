@@ -16,6 +16,10 @@ jobs:
     name: Verify Formal Specifications
     runs-on: ubuntu-latest
     
+    permissions:
+      pull-requests: write
+      contents: read
+    
     steps:
     - name: Checkout repository
       uses: actions/checkout@v3
@@ -43,7 +47,7 @@ jobs:
     - name: Download Alloy
       run: |
         if [ ! -f ~/alloy.jar ]; then
-          wget https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.0.0/alloy.jar -O ~/alloy.jar
+          wget https://github.com/AlloyTools/org.alloytools.alloy/releases/download/v6.2.0/org.alloytools.alloy.dist.jar -O ~/alloy.jar
         fi
     
     - name: Run TLA+ verification
@@ -97,7 +101,7 @@ jobs:
         EOF
     
     - name: Upload verification results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: verification-results
@@ -136,7 +140,7 @@ jobs:
       run: docker-compose run --rm formal-verification make ci-verify
     
     - name: Upload Docker verification results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: docker-verification-results
