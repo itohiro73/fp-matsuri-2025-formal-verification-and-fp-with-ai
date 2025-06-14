@@ -1,0 +1,28 @@
+version: '3.8'
+
+services:
+  bookstore-verification:
+    build:
+      context: ../formal-specs
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace/demo
+      - ../formal-specs/tools:/workspace/tools
+    working_dir: /workspace/demo
+    environment:
+      - JAVA_OPTS=-Xmx2g
+    command: make verify-demo
+    
+  bookstore-interactive:
+    build:
+      context: ../formal-specs
+      dockerfile: Dockerfile
+    volumes:
+      - .:/workspace/demo
+      - ../formal-specs/tools:/workspace/tools
+    working_dir: /workspace/demo
+    environment:
+      - JAVA_OPTS=-Xmx2g
+    command: /bin/bash
+    stdin_open: true
+    tty: true 

@@ -27,3 +27,7 @@ formal-specs/states/
 
 # TLA+ trace files
 *.bin
+
+# Formal verification results
+formal-specs/verification-results/
+demo/verification-results/

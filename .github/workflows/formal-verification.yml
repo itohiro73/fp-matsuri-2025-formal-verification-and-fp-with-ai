@@ -5,11 +5,13 @@ on:
     branches: [ main, develop ]
     paths:
       - 'formal-specs/**'
+      - 'demo/**'
       - '.github/workflows/formal-verification.yml'
   pull_request:
     branches: [ main ]
     paths:
       - 'formal-specs/**'
+      - 'demo/**'
 
 jobs:
   verify-formal-specs:
@@ -79,6 +81,13 @@ jobs:
         java -jar ~/alloy.jar --help > /dev/null 2>&1 || true
         echo "✅ Alloy syntax validated (full analysis requires GUI mode)"
     
+    - name: Run Demo Bookstore Verification
+      run: |
+        cd demo
+        make setup-tools
+        make verify-demo
+        make report
+    
     - name: Generate verification report
       working-directory: formal-specs
       run: |
@@ -105,7 +114,9 @@ jobs:
       if: always()
       with:
         name: verification-results
-        path: formal-specs/verification-results/
+        path: |
+          formal-specs/verification-results/
+          demo/verification-results/
     
     - name: Comment PR with results
       if: github.event_name == 'pull_request'
@@ -113,13 +124,24 @@ jobs:
       with:
         script: |
           const fs = require('fs');
-          const summary = fs.readFileSync('formal-specs/verification-results/verification-summary.md', 'utf8');
+          let summary = '';
+          
+          // Main formal specs summary
+          if (fs.existsSync('formal-specs/verification-results/verification-summary.md')) {
+            summary += fs.readFileSync('formal-specs/verification-results/verification-summary.md', 'utf8');
+          }
+          
+          // Demo bookstore summary
+          if (fs.existsSync('demo/verification-results/bookstore-verification-report.md')) {
+            summary += '\n\n---\n\n';
+            summary += fs.readFileSync('demo/verification-results/bookstore-verification-report.md', 'utf8');
+          }
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,
             owner: context.repo.owner,
             repo: context.repo.repo,
-            body: summary
+            body: summary || 'Verification completed. Check artifacts for detailed results.'
           });
 
   docker-verification:

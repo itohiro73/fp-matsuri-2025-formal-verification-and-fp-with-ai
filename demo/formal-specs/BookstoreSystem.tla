@@ -144,18 +144,18 @@ ReservedStockConsistency ==
 \* Property 3: No overbooking - total confirmed orders shouldn't exceed initial stock
 NoOverbooking ==
     \A b \in Books:
-        LET confirmedOrders == {i \in 1..Len(orders) : 
-                                orders[i].book = b /\ orderStatus[i] \in {"confirmed", "shipped"}} IN
-        LET totalConfirmed == IF confirmedOrders = {} 
-                             THEN 0 
-                             ELSE LET sum[S \in SUBSET (1..Len(orders))] ==
-                                      IF S = {} THEN 0
-                                      ELSE LET i == CHOOSE x \in S : TRUE IN
-                                           orders[i].quantity + sum[S \ {i}]
-                                  IN sum[confirmedOrders] IN
-        totalConfirmed <= MaxStock
+        LET confirmedQuantity == 
+            LET indices == {i \in 1..Len(orders) : 
+                           orders[i].book = b /\ orderStatus[i] \in {"confirmed", "shipped"}} IN
+            IF indices = {} THEN 0
+            ELSE LET SumQuantities[S \in SUBSET indices] ==
+                     IF S = {} THEN 0
+                     ELSE LET i == CHOOSE x \in S : TRUE IN
+                          orders[i].quantity + SumQuantities[S \ {i}]
+                 IN SumQuantities[indices]
+        IN confirmedQuantity <= MaxStock
 
-\* Property 4: Confirmed orders must have completed payments (eventually)
+\* Property 4: Confirmed orders must have completed payments (safety version)
 ConfirmedOrdersHavePayments ==
     \A i \in 1..Len(orders):
         orderStatus[i] = "confirmed" => payments[i] = "completed"

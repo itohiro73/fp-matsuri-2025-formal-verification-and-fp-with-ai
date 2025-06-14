@@ -106,19 +106,72 @@ demo/
 3. **曖昧性の可視化**: 「当然」と思われていた要件の曖昧性を明確化
 4. **AI開発への応用**: 明確な制約がAIエージェントの品質向上に寄与
 
-## 実行方法（将来の段階で追加予定）
+## 実行方法
 
-現在は仕様書とモデルファイルのみです。実装段階では以下が追加される予定：
+### 形式仕様の検証
+
+#### ローカル環境での実行
 
 ```bash
-# 形式仕様の検証（Alloy Analyzer使用）
-alloy bookstore.als
+# 検証ツールのセットアップ（初回のみ）
+cd demo
+make setup-tools
 
-# TLA+モデル検査（TLC使用）
-tlc bookstore.tla
+# 全ての検証を実行
+make verify-demo
 
-# 実装とテスト（Kotlin + Property-based testing）
-./gradlew test
+# 個別の検証
+make verify-bookstore-alloy  # Alloy仕様の検証
+make verify-bookstore-tla    # TLA+仕様の検証
+
+# 検証レポートの生成
+make report
+
+# 結果の確認
+cat verification-results/bookstore-verification-report.md
+```
+
+#### Docker環境での実行
+
+```bash
+# Docker環境で検証を実行
+cd demo
+docker-compose run --rm bookstore-verification
+
+# インタラクティブな環境で作業
+docker-compose run --rm bookstore-interactive
+```
+
+#### CI/CDでの自動検証
+
+- GitHub Actionsで自動的に実行されます
+- プルリクエスト作成時に検証結果がコメントされます
+- 検証結果はArtifactとしてダウンロード可能です
+
+### 検証内容
+
+**Alloy検証**:
+- 構造的制約の検証
+- データモデルの整合性チェック
+- 競合状態のシナリオ発見
+
+**TLA+検証**:
+- 状態遷移の安全性検証
+- 並行処理の正しさ確認
+- デッドロック・ライブロックの検出
+
+### トラブルシューティング
+
+```bash
+# 検証結果をクリア
+make clean
+
+# ツールの再セットアップ
+rm -rf ../formal-specs/tools
+make setup-tools
+
+# ヘルプの表示
+make help
 ```
 
 ---
