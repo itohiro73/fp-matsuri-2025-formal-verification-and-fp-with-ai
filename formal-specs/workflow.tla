@@ -7,7 +7,8 @@ NULL == "NULL"
 CONSTANTS
     Users,          \* Set of all users
     MaxAmount,      \* Maximum expense amount
-    Expenses        \* Set of all expense IDs
+    Expenses,       \* Set of all expense IDs
+    NoManager       \* Special value for users without managers
 
 VARIABLES
     expenses,       \* Function from expense ID to expense record
@@ -19,11 +20,11 @@ TypeOK ==
         [applicant: Users, 
          amount: 1..MaxAmount, 
          type: {"travel", "accommodation", "meeting", "equipment"},
-         description: {"desc1", "desc2", "travel_expense", "equipment_purchase"},
+         description: {"", "business_trip", "client_meeting", "equipment_purchase", "other"},
          status: {"draft", "submitted", "manager_review", "director_review", "finance_review", "approved", "rejected"},
          submit_time: Nat]]
-    /\ approvals \in [Expenses -> Seq([approver: Users, timestamp: Nat, action: {"approve", "reject"}, comment: {"ok", "approved", "rejected", "auto"}])]
-    /\ users \in [Users -> [name: {"Alice", "Bob", "Carol", "Dave"}, email: {"alice@example.com", "bob@example.com", "carol@example.com", "dave@example.com"}, role: {"employee", "manager", "director", "finance_director"}, manager: Users \cup {NULL}]]
+    /\ approvals \in [Expenses -> Seq([approver: Users, timestamp: Nat, action: {"approve", "reject"}, comment: {"", "approved", "rejected", "needs_revision"}])]
+    /\ users \in [Users -> [name: {"user1", "user2", "user3", "user4", "user5"}, email: {"email1", "email2", "email3", "email4", "email5"}, role: {"employee", "manager", "director", "finance_director"}, manager: Users \cup {NoManager}]]
 
 \* Define approval path based on amount
 ApprovalPath(amount) ==
@@ -79,7 +80,7 @@ Init ==
          status |-> "draft",
          submit_time |-> 0]]
     /\ approvals = [e \in Expenses |-> <<>>]
-    /\ users \in [Users -> [name: {"Alice", "Bob", "Carol", "Dave"}, email: {"alice@example.com", "bob@example.com", "carol@example.com", "dave@example.com"}, role: {"employee", "manager", "director", "finance_director"}, manager: Users \cup {NULL}]]
+    /\ users \in [Users -> [name: {"user1", "user2", "user3", "user4", "user5"}, email: {"email1", "email2", "email3", "email4", "email5"}, role: {"employee", "manager", "director", "finance_director"}, manager: Users \cup {NoManager}]]
 
 \* Submit expense application
 SubmitExpense(expense_id, applicant, amount, expense_type, description) ==
@@ -135,9 +136,9 @@ DeadlineExpired(expense_id) ==
 \* Next state relation
 Next ==
     \/ \E expense_id \in Expenses, applicant \in Users, amount \in 1..MaxAmount, 
-         expense_type \in {"travel", "accommodation", "meeting", "equipment"}, description \in {"desc1", "desc2", "travel_expense", "equipment_purchase"} :
+         expense_type \in {"travel", "accommodation", "meeting", "equipment"}, description \in {"", "business_trip", "client_meeting", "equipment_purchase", "other"} :
          SubmitExpense(expense_id, applicant, amount, expense_type, description)
-    \/ \E user_id \in Users, expense_id \in Expenses, action \in {"approve", "reject"}, comment \in {"ok", "approved", "rejected", "auto"} :
+    \/ \E user_id \in Users, expense_id \in Expenses, action \in {"approve", "reject"}, comment \in {"", "approved", "rejected", "needs_revision"} :
          ProcessApproval(user_id, expense_id, action, comment)
     \/ \E expense_id \in Expenses : AutoEscalate(expense_id)
     \/ \E expense_id \in Expenses : DeadlineExpired(expense_id)

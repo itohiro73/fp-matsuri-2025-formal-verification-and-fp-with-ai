@@ -51,8 +51,8 @@ fact UserHierarchy {
     no u: User | u in u.^manages
     
     // Role hierarchy constraints
-    all u: User | u.role = Manager implies some subordinate: User | subordinate in u.manages
-    all u: User | u.role = Director implies some manager: User | manager in u.manages and manager.role = Manager
+    all u: User | u.role = Manager implies some subordinate: User | subordinate.manager = u
+    all u: User | u.role = Director implies some m: User | m.manager = u and m.role = Manager
     all u: User | u.role = FinanceDirector implies u.role != Employee
 }
 
@@ -86,13 +86,25 @@ fact ApprovalConstraints {
 fun requiredApprovers[e: Expense]: set User {
     e.amount <= 10000 implies 
         // Only direct manager needed
-        e.applicant.manages
+        getDirectManager[e.applicant]
     else e.amount <= 50000 implies
-        // Manager then director
-        e.applicant.manages + (e.applicant.^manages & role.Director)
+        // Manager and director
+        getDirectManager[e.applicant] + getDirector[e.applicant]
     else
-        // Manager, director, then finance director  
-        e.applicant.manages + (e.applicant.^manages & role.Director) + role.FinanceDirector
+        // Manager, director, and finance director  
+        getDirectManager[e.applicant] + getDirector[e.applicant] + getFinanceDirector[]
+}
+
+fun getDirectManager[u: User]: one User {
+    u.manager
+}
+
+fun getDirector[u: User]: one User {
+    u.^manager & role.Director
+}
+
+fun getFinanceDirector[]: one User {
+    role.FinanceDirector
 }
 
 // ====================== BUSINESS RULES ======================

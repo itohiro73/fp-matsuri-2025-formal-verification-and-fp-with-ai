@@ -1,0 +1,11 @@
+version: '3.8'
+
+services:
+  formal-verification:
+    build: .
+    container_name: formal-verification-tools
+    volumes:
+      - ./:/workspace/formal-specs
+      - ./verification-results:/workspace/verification-results
+    working_dir: /workspace/formal-specs
+    command: tail -f /dev/null  # Keep container running for interactive use
