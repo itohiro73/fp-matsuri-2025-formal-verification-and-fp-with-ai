@@ -171,3 +171,40 @@ report:
 	@echo "" >> verification-results/bookstore-verification-report.md
 	@echo "Generated on: $$(date)" >> verification-results/bookstore-verification-report.md
 	@echo "✅ Report generated: verification-results/bookstore-verification-report.md"
+
+# === Phase 3: Functional Programming Implementation ===
+
+.PHONY: kotlin-build kotlin-test kotlin-run kotlin-verify-properties kotlin-clean
+
+kotlin-build: ## Build Kotlin functional implementation
+	@echo "🔨 Building Kotlin functional implementation..."
+	cd kotlin-implementation && ./gradlew build
+
+kotlin-test: ## Run Kotlin tests including property-based tests
+	@echo "🧪 Running Kotlin tests..."
+	cd kotlin-implementation && ./gradlew test
+
+kotlin-run: ## Run Kotlin demo application
+	@echo "🚀 Running Kotlin demo application..."
+	cd kotlin-implementation && ./gradlew run
+
+kotlin-verify-properties: ## Run property-based tests that verify formal properties
+	@echo "🔍 Verifying formal properties in Kotlin implementation..."
+	cd kotlin-implementation && ./gradlew verifyFormalProperties
+
+kotlin-property-test: ## Run property-based tests
+	@echo "🎲 Running property-based tests..."
+	cd kotlin-implementation && ./gradlew propertyTest
+
+kotlin-clean: ## Clean Kotlin build artifacts
+	@echo "🧹 Cleaning Kotlin build artifacts..."
+	cd kotlin-implementation && ./gradlew clean
+
+# Combined Phase 3 targets
+phase3-build: kotlin-build ## Build all Phase 3 components
+phase3-test: kotlin-test kotlin-verify-properties ## Test all Phase 3 components
+phase3-run: kotlin-run ## Run Phase 3 demo
+phase3-clean: kotlin-clean ## Clean all Phase 3 artifacts
+
+# === Phase 4: AI-Assisted Development ===
+# TODO: Add AI integration targets
