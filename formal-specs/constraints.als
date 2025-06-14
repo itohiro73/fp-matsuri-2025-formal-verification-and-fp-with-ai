@@ -6,7 +6,7 @@ abstract sig User {
     name: one String,
     email: one String,
     role: one Role,
-    manager: lone User
+    manages: set User  // Changed from manager to manages for clarity
 }
 
 abstract sig Role {}
@@ -44,11 +44,11 @@ one sig Approve, Reject extends ApprovalAction {}
 
 // Basic structural constraints
 fact UserHierarchy {
-    // No user can be their own manager (directly or indirectly)
-    no u: User | u in u.^manager
+    // No user can manage themselves
+    no u: User | u in u.manages
     
-    // Manager relationship is acyclic
-    no u: User | u in u.^manager
+    // Management relationship is acyclic
+    no u: User | u in u.^manages
     
     // Role hierarchy constraints
     all u: User | u.role = Manager implies some subordinate: User | subordinate.manager = u
@@ -119,12 +119,12 @@ fact OnlyAuthorizedApprovers {
     all a: Approval | {
         // Manager level approval
         (a.expense.amount <= 10000 and a.approver.role = Manager and 
-         a.approver = a.expense.applicant.manager) or
+         a.approver in a.expense.applicant.manages) or
         
         // Director level approval
         (a.expense.amount > 10000 and a.expense.amount <= 50000 and 
          a.approver.role = Director and 
-         a.approver in a.expense.applicant.^manager) or
+         a.approver in a.expense.applicant.^manages) or
          
         // Finance director level approval
         (a.expense.amount > 50000 and a.approver.role = FinanceDirector)
@@ -189,7 +189,7 @@ fact StatusConsistency {
         // ManagerReview status: waiting for manager approval
         e.status = ManagerReview implies {
             no a: Approval | a.expense = e and a.approver.role = Manager
-            some mgr: User | mgr.role = Manager and mgr = e.applicant.manager
+            some mgr: User | mgr.role = Manager and mgr in e.applicant.manages
         }
         
         // DirectorReview status: manager approved, waiting for director
@@ -228,7 +228,7 @@ pred validApprovalAction[a: Approval] {
     (a.expense.amount > 50000 and a.approver.role in (Manager + Director + FinanceDirector))
     
     // Proper hierarchy relationship
-    a.approver in a.expense.applicant.^manager or a.approver.role = FinanceDirector
+    a.approver in a.expense.applicant.^manages or a.approver.role = FinanceDirector
 }
 
 // Predicate: System invariants hold
@@ -237,7 +237,7 @@ pred systemInvariants {
     all e: Expense | e.amount > 0 and e.amount <= 10000000
     
     // No circular management relationships
-    no u: User | u in u.^manager
+    no u: User | u in u.^manages
     
     // All approvals are valid
     all a: Approval | validApprovalAction[a]

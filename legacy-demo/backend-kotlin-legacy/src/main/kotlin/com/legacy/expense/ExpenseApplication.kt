@@ -9,3 +9,4 @@ class ExpenseApplication
 fun main(args: Array<String>) {
     runApplication<ExpenseApplication>(*args)
 }
+

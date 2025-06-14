@@ -1,6 +1,9 @@
 ---- MODULE workflow ----
 EXTENDS Integers, Sequences, FiniteSets
 
+\* Define NULL as a special value
+NULL == "NULL"
+
 CONSTANTS
     Users,          \* Set of all users
     MaxAmount,      \* Maximum expense amount
@@ -73,7 +76,7 @@ Init ==
         [applicant |-> CHOOSE u \in Users : TRUE,
          amount |-> 1,
          type |-> "travel",
-         description |-> "",
+         description |-> "desc1",
          status |-> "draft",
          submit_time |-> 0]]
     /\ approvals = [e \in Expenses |-> <<>>]
