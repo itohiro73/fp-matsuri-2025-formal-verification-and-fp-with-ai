@@ -1,0 +1,5 @@
+
+# TLA+ temporary files
+*_TTrace_*.tla
+states/
+*.out
